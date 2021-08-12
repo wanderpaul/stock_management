@@ -1,6 +1,6 @@
-Clone this repo
-run composer install
-update .env file to point to your mysql database
-run php artisan migrate
-run php artisan serve
+Clone this repo <br/>
+run composer install <br/>
+update .env file to point to your mysql database <br/>
+run php artisan migrate <br/>
+run php artisan serve<br/>
 test :)
