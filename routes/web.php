@@ -17,5 +17,5 @@ Route::get('/', function () {
 */
 
 
-Route::get('/', 'App\Http\Controllers\StockController@showProducts');
+Route::get('/', 'App\Http\Controllers\StockController@index');
 Route::get('/calculate', 'App\Http\Controllers\StockController@calculate');
