@@ -18,6 +18,10 @@ class StockController extends Controller
 		if ($request->has('update')) {
 			$this->update($request);
 		}
+		
+		if ($request->has('add_product')) {
+			$sale = $this->save($request);
+		}
 
 		$sales = $this->showProducts();
 		return view('welcome', [
@@ -55,6 +59,16 @@ class StockController extends Controller
 		return $sub_total;
 	}
 
+	public function save(Request $request)
+	{
+		$sale = DB::table('sales')->insert([
+			'products' => $request->product,
+			'stock' => $request->stock,
+			'price' => $request->price
+		]);
+		return $sale;
+	}
+
 	public function update(Request $request)
 	{
 		$current_sale = DB::table('sales')->where('id', $request->product_id)->first();
@@ -64,10 +78,5 @@ class StockController extends Controller
 		$new_price = $request->update_price ?: $old_price;
 
 		DB::table('sales')->where('id', $request->product_id)->update(['stock'=> $new_stock, 'price' => $new_price]);
-	}
-
-	public function checkStock(Request $request)
-	{
-	
 	}
 }

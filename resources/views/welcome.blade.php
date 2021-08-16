@@ -25,6 +25,20 @@ table, th, td {
 </script>
     </head>
     <body class="antialiased">
+	<form class="add_form" action="/">
+		<label> Add Product </label>
+		<br>
+		<label> Product </label>
+		<input id="product" name="product" type=text />
+		<label> Price </label>
+		<input id="price" name="price" type=text />
+		<label> Stock </label>
+		<input id="stock" name="stock" type=text />
+		<button id='add_sale' name="add_product" value="1">Add Product</button>
+	</form>
+	<br>
+	<br>
+	<br>
 	<form class="update_form" action="/">
 		<label> UPDATE </label>
 		<br>
