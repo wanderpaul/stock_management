@@ -25,6 +25,12 @@ table, th, td {
 </script>
     </head>
     <body class="antialiased">
+    @if ($message)
+    	<label style="color:red">{{ $message }} </label>
+	@endif
+	<br>
+	<br>
+	<br>
 	<form class="add_form" action="/">
 		<label> Add Product </label>
 		<br>

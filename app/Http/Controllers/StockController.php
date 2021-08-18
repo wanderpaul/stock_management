@@ -9,24 +9,55 @@ class StockController extends Controller
 {
 	public function index(Request $request)
 	{
-		$sub_total = "";
+		$message = "";
+		$sub_total = 0;
+
+
 		if (($request->has('product_id'))) {
-			$this->updateSales($request);
-			$sub_total = $this->calculate($request);
+			
+			if (!$this->isValidValues($request->price, $request->stock)) {
+				$message = "Cannot accept negative values";
+			} elseif (is_float($request->stock)) {
+				$message .= "Can't accept decimal value for stock";
+			} else {
+				if (!$this->updateSales($request)) {
+					$message = "Can't sell stock greater than what we have";
+				} else {
+
+					$sub_total = $this->calculate($request);
+				}
+			}
 		}
 
 		if ($request->has('update')) {
-			$this->update($request);
+			if (!$this->isValidValues($request->update_price, $request->update_stock)) {
+				$message = "Cannot accept negative values";
+			} elseif (is_float($request->update_stock)) {
+				$message .= "Can't accept decimal value for stock";
+			} else {
+				$this->update($request);
+			}
 		}
 		
 		if ($request->has('add_product')) {
-			$sale = $this->save($request);
+			if (!$this->isValidValues($request->price, $request->stock)) {
+				$message = "Cannot accept negative values";
+			} elseif (is_float($request->stock)) {
+				$message .= "Can't accept decimal value for stock";
+			} else {
+				if ($this->checkProduct($request->product)) {
+					$message = "Can't add existing product";
+				} else {
+					$sale = $this->save($request);
+				}
+			}
 		}
 
 		$sales = $this->showProducts();
 		return view('welcome', [
 			'sales' => $sales,
-			'sub_total' => $sub_total
+			'sub_total' => $sub_total,
+			'message' => $message
 		]);	
 	}
 
@@ -38,6 +69,11 @@ class StockController extends Controller
 	public function updateSales(Request $request)
 	{
 		$current_sale = DB::table('sales')->where('id', $request->product_id)->first();
+
+		if ($request->stock > $current_sale->stock) {
+			return false;
+		}
+		
 		$old_stock = $current_sale->stock;
 		$new_stock = $old_stock - $request->stock;
 	
@@ -49,10 +85,6 @@ class StockController extends Controller
 		$quantity = $request->stock;
 		$sale = DB::table('sales')->where('id', $request->product_id)->first();
 		
-		if ($sale->stock <= 0) {
-			return -1;
-		}
-
 		$sub_total = $quantity * $sale->price;
 		$sub_total += $request->subtotal;
 
@@ -71,6 +103,7 @@ class StockController extends Controller
 
 	public function update(Request $request)
 	{
+
 		$current_sale = DB::table('sales')->where('id', $request->product_id)->first();
 		$old_stock = $current_sale->stock;
 		$new_stock = $old_stock + $request->update_stock;
@@ -78,5 +111,23 @@ class StockController extends Controller
 		$new_price = $request->update_price ?: $old_price;
 
 		DB::table('sales')->where('id', $request->product_id)->update(['stock'=> $new_stock, 'price' => $new_price]);
+	}
+
+	private function isValidValues($price, $stock)
+	{
+		if ($stock < 0 || $price < 0) {
+			return false;
+		}
+
+		return true;
+	}
+
+	private function checkProduct($product)
+	{
+		$existing = DB::table('sales')->where('products', $product)->first();
+		if (!empty($existing)) {
+			return $existing->products;
+		}
+		return null;
 	}
 }
